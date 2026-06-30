@@ -57,6 +57,53 @@ function toast(msg) {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1600);
 }
 
+// --- Preferences (theme + font size), persisted in localStorage -------------
+const FONT_MIN = 13;
+const FONT_MAX = 34;
+const FONT_DEFAULT = 20;
+
+function applyTheme(dark) {
+  document.body.classList.toggle('dark', dark);
+  try { localStorage.setItem('mm.dark', dark ? '1' : '0'); } catch {}
+}
+function toggleTheme() {
+  const dark = !document.body.classList.contains('dark');
+  applyTheme(dark);
+  toast(dark ? 'Dark mode' : 'Light mode');
+}
+
+function applyFontSize(px) {
+  const size = Math.min(FONT_MAX, Math.max(FONT_MIN, px));
+  document.documentElement.style.setProperty('--body-size', size + 'px');
+  try { localStorage.setItem('mm.fontSize', String(size)); } catch {}
+  if (editing) autosize(editing.el.querySelector('textarea'));
+  return size;
+}
+function currentFontSize() {
+  const v = parseFloat(getComputedStyle(document.documentElement)
+    .getPropertyValue('--body-size'));
+  return Number.isFinite(v) ? v : FONT_DEFAULT;
+}
+function bumpFontSize(delta) {
+  const size = applyFontSize(currentFontSize() + delta);
+  toast(`Text size ${Math.round(size)} px`);
+}
+function resetFontSize() {
+  applyFontSize(FONT_DEFAULT);
+  toast(`Text size ${FONT_DEFAULT} px`);
+}
+
+function loadPrefs() {
+  try {
+    if (localStorage.getItem('mm.dark') === '1') document.body.classList.add('dark');
+    const fs = parseFloat(localStorage.getItem('mm.fontSize'));
+    if (Number.isFinite(fs)) {
+      document.documentElement.style.setProperty(
+        '--body-size', Math.min(FONT_MAX, Math.max(FONT_MIN, fs)) + 'px');
+    }
+  } catch {}
+}
+
 // --- Rendering --------------------------------------------------------------
 function setSource(text, { dirty: markDirtyFlag = true } = {}) {
   source = text;
@@ -342,6 +389,11 @@ window.addEventListener('keydown', (e) => {
     e.shiftKey ? toggleMusicPause() : playRandomEpisode();
     return;
   }
+  if (ctrl && e.shiftKey && (e.key === 'd' || e.key === 'D')) {
+    e.preventDefault();
+    toggleTheme();
+    return;
+  }
 
   if (e.key === 'PageUp' || e.key === 'PageDown') {
     e.preventDefault();
@@ -357,6 +409,8 @@ window.addEventListener('keydown', (e) => {
 });
 
 // --- Startup ----------------------------------------------------------------
+loadPrefs();
+
 if (window.mm && window.mm.onFileOpened) {
   window.mm.onFileOpened(({ path, content }) => loadContent(content, path));
 }

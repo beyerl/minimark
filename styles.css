@@ -47,6 +47,15 @@
   --leading: 1.65;
 }
 
+/* Warm dark theme — sepia ink on near-black paper, keeps the book feeling. */
+body.dark {
+  --paper: #1d1b17;
+  --paper-edge: #26231d;
+  --ink: #e6dcc6;
+  --ink-soft: #9c917a;
+  --accent: #d29a82;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
