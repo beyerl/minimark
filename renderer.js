@@ -510,6 +510,13 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
+  // While reading (not editing a paragraph), the arrow keys scroll the page.
+  if (!editing && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    e.preventDefault();
+    scroll.scrollBy({ top: e.key === 'ArrowDown' ? 72 : -72 });
+    return;
+  }
+
   if (e.key === 'Escape' && editing) {
     e.preventDefault();
     commitEditing();

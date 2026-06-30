@@ -3,3 +3,5 @@
 [x] Implement darkmode. pick a sensible horkey. (Ctrl+Shift+D)
 [x] Implement vs code style multiselect and edit when pressing ctrl-d
 [x] "Ctrl +" and "Ctrl -" increase/decrease font size
+[ ] Arrow down scrolls the text down, arrow up scrolls up
+[ ] Imporve ordering of short cuts in f1 view 
