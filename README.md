@@ -42,6 +42,7 @@ npx electron . path/to/notes.md
 | **Ctrl + M** | Play a random [musicforprogramming.net](https://musicforprogramming.net) episode |
 | **Ctrl + Shift + M** | Pause / resume the music |
 | **Ctrl + Shift + D** | Toggle dark mode |
+| **Ctrl + = / Ctrl + −** | Increase / decrease text size (**Ctrl + 0** resets) |
 | **F11** | Toggle fullscreen |
 | **F1** | Show / hide the shortcut overlay |
 

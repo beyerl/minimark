@@ -499,6 +499,9 @@ window.addEventListener('keydown', (e) => {
     toggleTheme();
     return;
   }
+  if (ctrl && (e.key === '=' || e.key === '+')) { e.preventDefault(); bumpFontSize(1); return; }
+  if (ctrl && (e.key === '-' || e.key === '_')) { e.preventDefault(); bumpFontSize(-1); return; }
+  if (ctrl && e.key === '0') { e.preventDefault(); resetFontSize(); return; }
 
   if (e.key === 'PageUp' || e.key === 'PageDown') {
     e.preventDefault();
