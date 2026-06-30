@@ -72,20 +72,34 @@ function createWindow() {
 
   // Once the renderer is ready, hand it any file given on the command line.
   mainWindow.webContents.on('did-finish-load', () => {
-    const startFile = fileFromArgv(process.argv);
-    if (startFile) {
-      try {
-        const content = fs.readFileSync(startFile, 'utf8');
-        rememberDir(startFile);
-        mainWindow.webContents.send('file-opened', { path: startFile, content });
-      } catch {
-        /* ignore unreadable startup file */
-      }
-    }
+    openFileInWindow(fileFromArgv(process.argv));
   });
 }
 
-app.whenReady().then(createWindow);
+function openFileInWindow(filePath) {
+  if (!filePath || !mainWindow) return;
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    rememberDir(filePath);
+    mainWindow.webContents.send('file-opened', { path: filePath, content });
+  } catch {
+    /* ignore unreadable file */
+  }
+}
+
+// Single instance: a second `minimark <file>` focuses the existing window and
+// opens the file there instead of launching a duplicate app.
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', (_event, argv) => {
+    if (!mainWindow) return;
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+    openFileInWindow(fileFromArgv(argv));
+  });
+  app.whenReady().then(createWindow);
+}
 
 app.on('window-all-closed', () => {
   app.quit();

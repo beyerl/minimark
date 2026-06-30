@@ -26,6 +26,27 @@ You can also open a file directly:
 npx electron . path/to/notes.md
 ```
 
+## `minimark` command line
+
+Install a global `minimark` command (like VS Code's `code`) so you can open
+files from any terminal:
+
+```sh
+npm link            # run once, inside the minimal-mark folder
+```
+
+Then, from anywhere:
+
+```sh
+minimark                 # open the editor
+minimark notes.md        # open (or create the path to) a file
+minimark ../docs/x.md    # relative paths are resolved against the current dir
+```
+
+If the app is already open, `minimark <file>` loads the file into the existing
+window instead of launching a second one. (Run `npm unlink -g minimark` to
+remove the command.)
+
 ## Keyboard shortcuts (press **F1** in-app)
 
 | Shortcut | Action |

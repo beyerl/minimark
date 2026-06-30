@@ -1,8 +1,11 @@
 {
   "name": "minimark",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "A minimal, distraction-free markdown editor that reads like a 19th-century book.",
   "main": "main.js",
+  "bin": {
+    "minimark": "bin/minimark.js"
+  },
   "scripts": {
     "start": "electron ."
   },
