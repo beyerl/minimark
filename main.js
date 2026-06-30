@@ -3,6 +3,7 @@
 const { app, BrowserWindow, dialog, ipcMain, Menu } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
 // ---------------------------------------------------------------------------
 // Persistent settings (remembers the last folder used in open/save dialogs).
@@ -144,4 +145,58 @@ ipcMain.handle('toggle-fullscreen', () => {
 
 ipcMain.handle('set-title', (_evt, title) => {
   if (mainWindow) mainWindow.setTitle(title);
+});
+
+// ---------------------------------------------------------------------------
+// musicforprogramming.net — fetch the episode list from the RSS feed in the
+// main process (Node, no CORS) and hand the renderer a simple list to play.
+// ---------------------------------------------------------------------------
+const MFP_RSS = 'https://musicforprogramming.net/rss.xml';
+let mfpCache = null;
+
+function httpGet(url) {
+  return new Promise((resolve, reject) => {
+    https
+      .get(url, { headers: { 'User-Agent': 'minimark' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          res.resume();
+          return resolve(httpGet(res.headers.location));
+        }
+        if (res.statusCode !== 200) {
+          res.resume();
+          return reject(new Error(`HTTP ${res.statusCode}`));
+        }
+        let data = '';
+        res.setEncoding('utf8');
+        res.on('data', (c) => (data += c));
+        res.on('end', () => resolve(data));
+      })
+      .on('error', reject);
+  });
+}
+
+function parseEpisodes(xml) {
+  const episodes = [];
+  const items = xml.split('<item>').slice(1);
+  for (const item of items) {
+    const enc = item.match(/<enclosure[^>]*url="([^"]+)"[^>]*type="audio[^"]*"/i) ||
+      item.match(/<enclosure[^>]*url="([^"]+)"/i);
+    if (!enc) continue;
+    const titleMatch = item.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : 'Music For Programming';
+    episodes.push({ title, url: enc[1] });
+  }
+  return episodes;
+}
+
+ipcMain.handle('mfp-episodes', async () => {
+  if (mfpCache) return { episodes: mfpCache };
+  try {
+    const xml = await httpGet(MFP_RSS);
+    const episodes = parseEpisodes(xml);
+    if (episodes.length) mfpCache = episodes;
+    return { episodes };
+  } catch (err) {
+    return { error: err.message || String(err) };
+  }
 });

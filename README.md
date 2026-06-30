@@ -38,6 +38,8 @@ npx electron . path/to/notes.md
 | **Ctrl + Shift + S** | Save as… |
 | **Ctrl + O** | Open a file (remembers the last folder) |
 | **Page Up / Page Down** | Previous / next portion of the document |
+| **Ctrl + M** | Play a random [musicforprogramming.net](https://musicforprogramming.net) episode |
+| **Ctrl + Shift + M** | Pause / resume the music |
 | **F11** | Toggle fullscreen |
 | **F1** | Show / hide the shortcut overlay |
 

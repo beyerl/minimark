@@ -285,6 +285,41 @@ helpEl.addEventListener('mousedown', (e) => {
   if (e.target === helpEl) toggleHelp();   // click backdrop to close
 });
 
+// --- musicforprogramming.net playback ---------------------------------------
+const audio = new Audio();
+audio.preload = 'none';
+let mfpEpisodes = null;
+
+async function playRandomEpisode() {
+  try {
+    if (!mfpEpisodes) {
+      toast('Fetching music…');
+      const res = await window.mm.mfpEpisodes();
+      if (res.error || !res.episodes || !res.episodes.length) {
+        toast('Could not reach musicforprogramming.net');
+        return;
+      }
+      mfpEpisodes = res.episodes;
+    }
+    const ep = mfpEpisodes[Math.floor(Math.random() * mfpEpisodes.length)];
+    audio.src = ep.url;
+    await audio.play();
+    toast(`♪ ${ep.title}`);
+  } catch {
+    toast('Playback failed');
+  }
+}
+
+function toggleMusicPause() {
+  if (!audio.src) return;
+  if (audio.paused) {
+    audio.play().then(() => toast('♪ Resumed')).catch(() => {});
+  } else {
+    audio.pause();
+    toast('♪ Paused');
+  }
+}
+
 // --- Global keyboard --------------------------------------------------------
 window.addEventListener('keydown', (e) => {
   if (e.key === 'F1') { e.preventDefault(); toggleHelp(); return; }
@@ -302,6 +337,11 @@ window.addEventListener('keydown', (e) => {
   }
   if (ctrl && (e.key === 'o' || e.key === 'O')) { e.preventDefault(); openFile(); return; }
   if (ctrl && (e.key === 'e' || e.key === 'E')) { e.preventDefault(); enterEditTop(); return; }
+  if (ctrl && (e.key === 'm' || e.key === 'M')) {
+    e.preventDefault();
+    e.shiftKey ? toggleMusicPause() : playRandomEpisode();
+    return;
+  }
 
   if (e.key === 'PageUp' || e.key === 'PageDown') {
     e.preventDefault();

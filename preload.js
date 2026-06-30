@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('mm', {
   saveFileAs: (payload) => ipcRenderer.invoke('save-file-as', payload),
   toggleFullscreen: () => ipcRenderer.invoke('toggle-fullscreen'),
   setTitle: (title) => ipcRenderer.invoke('set-title', title),
+  mfpEpisodes: () => ipcRenderer.invoke('mfp-episodes'),
   // Files handed to us from the command line at startup.
   onFileOpened: (cb) =>
     ipcRenderer.on('file-opened', (_evt, data) => cb(data))
