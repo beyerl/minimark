@@ -30,21 +30,28 @@ npx electron . path/to/notes.md
 
 | Shortcut | Action |
 | --- | --- |
+| *Reading* | |
+| **↑ / ↓** | Scroll up / down |
+| **Page Up / Page Down** | Previous / next portion of the document |
+| *Editing* | |
 | **Ctrl + E** | Edit from the top of the visible text |
 | Click a paragraph | Edit just that paragraph's Markdown |
-| **↑ / ↓** at a paragraph edge | Move the edit cursor between paragraphs |
+| **↑ / ↓** at a paragraph edge | Move the cursor between paragraphs |
 | **Ctrl + D** | Select the word; repeat to add the next occurrence, then type to rename them all (within the current paragraph) |
-| **Esc** | Leave edit mode / close the help overlay |
+| **Esc** | Leave edit mode |
+| *File* | |
+| **Ctrl + O** | Open a file (remembers the last folder) |
 | **Ctrl + S** | Save |
 | **Ctrl + Shift + S** | Save as… |
-| **Ctrl + O** | Open a file (remembers the last folder) |
-| **Page Up / Page Down** | Previous / next portion of the document |
+| *Appearance* | |
+| **Ctrl + = / Ctrl + −** | Increase / decrease text size (**Ctrl + 0** resets) |
+| **Ctrl + Shift + D** | Toggle dark mode |
+| **F11** | Toggle fullscreen |
+| *Music* | |
 | **Ctrl + M** | Play a random [musicforprogramming.net](https://musicforprogramming.net) episode |
 | **Ctrl + Shift + M** | Pause / resume the music |
-| **Ctrl + Shift + D** | Toggle dark mode |
-| **Ctrl + = / Ctrl + −** | Increase / decrease text size (**Ctrl + 0** resets) |
-| **F11** | Toggle fullscreen |
-| **F1** | Show / hide the shortcut overlay |
+| *Help* | |
+| **F1 / Esc** | Show / hide the shortcut overlay |
 
 ## Markdown support
 

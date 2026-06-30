@@ -282,6 +282,8 @@ body {
   padding: 2em 2.4em;
   max-width: 560px;
   width: calc(100% - 48px);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
 }
 .help-card h2 {
   margin: 0 0 1em;
@@ -304,6 +306,20 @@ body {
   white-space: nowrap;
 }
 .help-grid dd { margin: 0; }
+
+/* Section label spanning both columns. */
+.help-grid dt.grp {
+  grid-column: 1 / -1;
+  font-family: var(--serif);
+  font-variant-caps: small-caps;
+  letter-spacing: 0.08em;
+  font-size: 0.92em;
+  color: var(--ink-soft);
+  margin-top: 0.7em;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid rgba(107, 99, 83, 0.3);
+}
+.help-grid dt.grp:first-child { margin-top: 0; }
 .help-hint {
   margin: 1.6em 0 0;
   text-align: center;
