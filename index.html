@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>minimark</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="vendor/marked.min.js"></script>
+    <script src="vendor/dompurify.min.js"></script>
+  </head>
+  <body>
+    <!-- The scroll container; the centered "page" lives inside it. -->
+    <main id="scroll" class="scroll">
+      <article id="doc" class="page" spellcheck="false"></article>
+    </main>
+
+    <!-- Transient status toast (save confirmations, errors, etc.). -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- F1 keyboard-shortcut overlay (replaces a menu bar). -->
+    <div id="help" class="help-overlay" hidden>
+      <div class="help-card">
+        <h2>minimark — keyboard shortcuts</h2>
+        <dl class="help-grid">
+          <dt>Ctrl&nbsp;+&nbsp;E</dt><dd>Edit from the top of the visible text</dd>
+          <dt>Click a paragraph</dt><dd>Edit just that paragraph's markdown</dd>
+          <dt>↑ / ↓ at edge</dt><dd>Move the edit cursor between paragraphs</dd>
+          <dt>Esc</dt><dd>Leave edit mode / close this overlay</dd>
+          <dt>Ctrl&nbsp;+&nbsp;S</dt><dd>Save</dd>
+          <dt>Ctrl&nbsp;+&nbsp;Shift&nbsp;+&nbsp;S</dt><dd>Save as…</dd>
+          <dt>Ctrl&nbsp;+&nbsp;O</dt><dd>Open a file</dd>
+          <dt>Page&nbsp;Up / Page&nbsp;Down</dt><dd>Previous / next portion of the document</dd>
+          <dt>F11</dt><dd>Toggle fullscreen</dd>
+          <dt>F1</dt><dd>Show / hide this help</dd>
+        </dl>
+        <p class="help-hint">Press F1 or Esc to close</p>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

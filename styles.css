@@ -1,0 +1,304 @@
+/* ===========================================================================
+   minimark — 19th-century book typography.
+   Legibility first: warm paper, old-style serif, a Word-width centered column.
+   =========================================================================== */
+
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('fonts/EBGaramond-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('fonts/EBGaramond-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('fonts/EBGaramond-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('fonts/EBGaramond-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f4ecd9;        /* warm cream page          */
+  --paper-edge: #efe6cf;   /* faint edge tint          */
+  --ink: #33302b;          /* warm near-black ink      */
+  --ink-soft: #6b6353;     /* muted ink (rules, meta)  */
+  --accent: #7a3b2e;       /* oxblood, for links/marks */
+  --serif: 'EB Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino,
+           'Book Antiqua', Georgia, serif;
+  --page-width: 816px;     /* US-Letter @96dpi, like an MS Word page */
+  --page-pad-y: 84px;
+  --page-pad-x: 96px;      /* ~1in margins */
+  --body-size: 20px;
+  --leading: 1.65;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--body-size);
+  line-height: var(--leading);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
+  font-feature-settings: 'liga' 1, 'kern' 1, 'onum' 1;
+}
+
+/* Scroll area fills the window; the page is centered within it. */
+.scroll {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* The "sheet". Fluid below --page-width, then capped and centered, so wide
+   windows simply add whitespace on both sides. */
+.page {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: var(--page-pad-y) var(--page-pad-x);
+  min-height: 100vh;
+  outline: none;
+}
+
+@media (max-width: 700px) {
+  :root { --page-pad-x: 28px; --page-pad-y: 40px; --body-size: 19px; }
+}
+
+/* --- Block-level reading rhythm (classic book setting) ------------------- */
+
+.block { position: relative; }
+
+/* Paragraphs: justified, hyphenated, indented first line, no inter-para gap. */
+.page p {
+  margin: 0;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  text-indent: 1.4em;
+}
+/* First paragraph after a heading or at the very top is not indented. */
+.page h1 + .block p,
+.page h2 + .block p,
+.page h3 + .block p,
+.page h4 + .block p,
+.page > .block:first-child p,
+.page blockquote p:first-child,
+.page li > p:first-child {
+  text-indent: 0;
+}
+
+/* Headings: serif, restrained, a touch of title-page character. */
+.page h1, .page h2, .page h3, .page h4, .page h5, .page h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 1.4em 0 0.5em;
+  text-align: center;
+}
+.page h1 {
+  font-size: 2em;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  font-variant-caps: small-caps;
+  margin-top: 0.4em;
+  margin-bottom: 0.8em;
+}
+.page h2 {
+  font-size: 1.5em;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.03em;
+}
+.page h3 { font-size: 1.25em; }
+.page h4, .page h5, .page h6 { font-size: 1.08em; text-align: left; }
+
+.page blockquote {
+  margin: 0.8em 0;
+  padding-left: 1.4em;
+  border-left: 2px solid var(--ink-soft);
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.page ul, .page ol {
+  margin: 0.6em 0;
+  padding-left: 1.8em;
+}
+.page li { margin: 0.15em 0; }
+.page li p { text-align: left; text-indent: 0; }
+
+.page ul.contains-task-list { list-style: none; padding-left: 1.2em; }
+.page li.task-list-item { display: flex; align-items: baseline; gap: 0.5em; }
+.page li.task-list-item input { margin: 0; }
+
+.page a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(122, 59, 46, 0.35); }
+.page a:hover { border-bottom-color: var(--accent); }
+
+.page img { max-width: 100%; height: auto; display: block; margin: 0.8em auto; }
+
+.page hr {
+  border: none;
+  text-align: center;
+  margin: 1.6em 0;
+}
+.page hr::before {
+  content: '\00A7';            /* section mark, a bookish divider */
+  color: var(--ink-soft);
+  font-size: 1.2em;
+}
+
+/* Monospace for code, but kept warm and legible. */
+.page code, .page pre {
+  font-family: 'Iosevka', 'Consolas', 'SFMono-Regular', ui-monospace, monospace;
+  font-size: 0.86em;
+}
+.page code {
+  background: rgba(122, 59, 46, 0.08);
+  padding: 0.08em 0.32em;
+  border-radius: 3px;
+}
+.page pre {
+  background: var(--paper-edge);
+  border: 1px solid rgba(107, 99, 83, 0.3);
+  border-radius: 4px;
+  padding: 0.9em 1.1em;
+  overflow-x: auto;
+  line-height: 1.45;
+}
+.page pre code { background: none; padding: 0; }
+
+.page table {
+  border-collapse: collapse;
+  margin: 1em auto;
+  width: 100%;
+}
+.page th, .page td {
+  border: 1px solid rgba(107, 99, 83, 0.4);
+  padding: 0.35em 0.7em;
+  text-align: left;
+}
+.page th { background: var(--paper-edge); font-variant-caps: small-caps; }
+
+/* Muted placeholder for blocks that render to nothing (e.g. a lone link
+   reference definition) so they remain visible and clickable. */
+.raw-hint {
+  color: var(--ink-soft);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* --- Per-paragraph raw editor ------------------------------------------- */
+/* A block in edit mode swaps its rendered HTML for this textarea. It must
+   match the body metrics so the page does not jump on switch. */
+.raw-editor {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-left: 2px solid var(--accent);
+  padding: 0.1em 0 0.1em 0.8em;
+  background: rgba(122, 59, 46, 0.05);
+  color: var(--ink);
+  font-family: 'Iosevka', 'Consolas', 'SFMono-Regular', ui-monospace, monospace;
+  font-size: 0.92em;
+  line-height: var(--leading);
+  resize: none;
+  overflow: hidden;
+  outline: none;
+  tab-size: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* --- Toast -------------------------------------------------------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5em 1.1em;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 50;
+}
+.toast.show { opacity: 0.96; transform: translateX(-50%) translateY(0); }
+
+/* --- F1 help overlay ---------------------------------------------------- */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(40, 36, 30, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+}
+.help-overlay[hidden] { display: none; }
+
+.help-card {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid rgba(107, 99, 83, 0.5);
+  border-radius: 6px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  padding: 2em 2.4em;
+  max-width: 560px;
+  width: calc(100% - 48px);
+}
+.help-card h2 {
+  margin: 0 0 1em;
+  text-align: center;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  font-size: 1.5em;
+}
+.help-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5em 1.4em;
+  margin: 0;
+}
+.help-grid dt {
+  font-family: 'Consolas', ui-monospace, monospace;
+  font-size: 0.82em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.help-grid dd { margin: 0; }
+.help-hint {
+  margin: 1.6em 0 0;
+  text-align: center;
+  color: var(--ink-soft);
+  font-style: italic;
+  font-size: 0.9em;
+}

@@ -1,0 +1,6 @@
+node_modules/
+npm-debug.log*
+# runtime settings live in the OS userData dir, but ignore any stray local copy
+settings.json
+.DS_Store
+Thumbs.db
