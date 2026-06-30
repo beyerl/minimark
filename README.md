@@ -47,6 +47,17 @@ If the app is already open, `minimark <file>` loads the file into the existing
 window instead of launching a second one. (Run `npm unlink -g minimark` to
 remove the command.)
 
+## Desktop shortcut (Windows)
+
+Create a clickable **minimark** shortcut on your Desktop:
+
+```sh
+npm run shortcut
+```
+
+Double-click it to launch the editor. Remove it with `npm run shortcut -- -Remove`
+(or just delete `minimark.lnk` from the Desktop).
+
 ## Keyboard shortcuts (press **F1** in-app)
 
 | Shortcut | Action |
