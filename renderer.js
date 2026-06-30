@@ -24,6 +24,7 @@ let filePath = null;
 let docName = 'untitled.md';
 let dirty = false;
 let editing = null;     // { el, off, clen } while a block is in raw edit mode
+let ms = null;          // multiselect session: { anchor, ranges, typing, base, repl }
 let helpOpen = false;
 
 // --- Small helpers ----------------------------------------------------------
@@ -171,6 +172,7 @@ function openEditor(el, caret) {
   const clen = +el.dataset.clen;
   const text = source.slice(off, off + clen);
 
+  ms = null;
   const ta = document.createElement('textarea');
   ta.className = 'raw-editor';
   ta.value = text;
@@ -185,6 +187,7 @@ function openEditor(el, caret) {
   ta.addEventListener('input', () => autosize(ta));
   ta.addEventListener('blur', onEditorBlur);
   ta.addEventListener('keydown', onEditorKeydown);
+  ta.addEventListener('pointerdown', () => { ms = null; }); // repositioning cancels multiselect
 
   ta.focus();
   autosize(ta);
@@ -202,6 +205,7 @@ function commitEditing(trackOff) {
   const ta = editing.el.querySelector('textarea');
   const { off, clen } = editing;
   editing = null;
+  ms = null;
 
   if (ta) {
     const newText = ta.value;
@@ -257,8 +261,109 @@ function atLastLine(ta) {
     ta.value.slice(ta.selectionEnd).indexOf('\n') === -1;
 }
 
+// --- Ctrl-D multiselect (within the active paragraph) -----------------------
+function wordRangeAt(value, pos) {
+  if (!value) return null;
+  const isW = (c) => /\w/.test(c);
+  let s = pos, e = pos;
+  while (s > 0 && isW(value[s - 1])) s--;
+  while (e < value.length && isW(value[e])) e++;
+  if (s === e && pos > 0 && isW(value[pos - 1])) {
+    e = pos; s = pos;
+    while (s > 0 && isW(value[s - 1])) s--;
+  }
+  return s < e ? { start: s, end: e } : null;
+}
+
+function msNextOccurrence(value) {
+  const anchor = ms.anchor;
+  const taken = new Set(ms.ranges.map((r) => r.start));
+  const find = (start) => {
+    let i = value.indexOf(anchor, start);
+    while (i !== -1 && taken.has(i)) i = value.indexOf(anchor, i + 1);
+    return i;
+  };
+  let idx = find(Math.max(...ms.ranges.map((r) => r.end)));
+  if (idx === -1) idx = find(0);                       // wrap around
+  return idx === -1 ? null : { start: idx, end: idx + anchor.length };
+}
+
+function msAddOccurrence(ta) {
+  if (ms && ms.typing) ms = null;                      // a new Ctrl-D after a rename starts fresh
+  if (!ms) {
+    const sel = ta.selectionStart !== ta.selectionEnd
+      ? { start: ta.selectionStart, end: ta.selectionEnd }
+      : wordRangeAt(ta.value, ta.selectionStart);
+    if (!sel) return;
+    const anchor = ta.value.slice(sel.start, sel.end);
+    if (!anchor.trim()) return;
+    ms = { anchor, ranges: [sel], typing: false, base: null, repl: '' };
+    ta.setSelectionRange(sel.start, sel.end);
+    toast('1 match — Ctrl+D for more, then type to rename');
+    return;
+  }
+  const next = msNextOccurrence(ta.value);
+  if (!next) { toast(`${ms.ranges.length} match(es) — no more`); return; }
+  ms.ranges.push(next);
+  ms.ranges.sort((a, b) => a.start - b.start);
+  ta.setSelectionRange(next.start, next.end);
+  toast(`${ms.ranges.length} matches`);
+}
+
+function msRender(ta) {
+  let out = '', prev = 0, caret = 0;
+  for (const r of ms.ranges) {
+    out += ms.base.slice(prev, r.start) + ms.repl;
+    caret = out.length;
+    prev = r.end;
+  }
+  out += ms.base.slice(prev);
+  ta.value = out;
+  ta.setSelectionRange(caret, caret);
+  autosize(ta);
+}
+
+function msType(ta, ch) {
+  if (!ms.typing) { ms.typing = true; ms.base = ta.value; ms.repl = ''; }
+  ms.repl += ch;
+  msRender(ta);
+}
+
 function onEditorKeydown(e) {
   const ta = e.currentTarget;
+  const ctrl = e.ctrlKey || e.metaKey;
+
+  // Ctrl-D: select the word / add the next occurrence to the set.
+  if (ctrl && !e.shiftKey && (e.key === 'd' || e.key === 'D')) {
+    e.preventDefault();
+    e.stopPropagation();
+    msAddOccurrence(ta);
+    return;
+  }
+
+  // With a multiselect set active, typing rewrites every occurrence at once.
+  if (ms) {
+    if (e.key.length === 1 && !ctrl && !e.altKey) {
+      e.preventDefault();
+      msType(ta, e.key);
+      return;
+    }
+    if (e.key === 'Backspace' && ms.typing) {
+      e.preventDefault();
+      ms.repl = ms.repl.slice(0, -1);
+      msRender(ta);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();       // keep the block in edit mode; just drop the set
+      ms = null;
+      toast('Selection cleared');
+      return;
+    }
+    ms = null;                   // any other navigation/edit key ends the set
+  }
+
   if (e.key === 'Escape') {
     e.preventDefault();
     commitEditing();

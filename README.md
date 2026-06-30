@@ -33,6 +33,7 @@ npx electron . path/to/notes.md
 | **Ctrl + E** | Edit from the top of the visible text |
 | Click a paragraph | Edit just that paragraph's Markdown |
 | **↑ / ↓** at a paragraph edge | Move the edit cursor between paragraphs |
+| **Ctrl + D** | Select the word; repeat to add the next occurrence, then type to rename them all (within the current paragraph) |
 | **Esc** | Leave edit mode / close the help overlay |
 | **Ctrl + S** | Save |
 | **Ctrl + Shift + S** | Save as… |
