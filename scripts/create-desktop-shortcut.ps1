@@ -28,7 +28,8 @@ $shortcut = $shell.CreateShortcut($lnkPath)
 $shortcut.TargetPath       = $electron
 $shortcut.Arguments        = '"{0}"' -f $root          # run the app in this folder
 $shortcut.WorkingDirectory = $root
-$shortcut.IconLocation     = "$electron,0"
+$icon = Join-Path $root 'assets\icon.ico'
+$shortcut.IconLocation     = if (Test-Path $icon) { $icon } else { "$electron,0" }
 $shortcut.Description       = 'minimark - minimal markdown editor'
 $shortcut.Save()
 

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- minimark app icon: a warm paper tile with an oxblood serif "M".
+       Palette matches the app (paper #f4ecd9, ink #33302b, oxblood #7a3b2e). -->
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7f0de"/>
+      <stop offset="1" stop-color="#efe6cf"/>
+    </linearGradient>
+  </defs>
+
+  <!-- page / tile -->
+  <rect x="8" y="8" width="240" height="240" rx="44" ry="44"
+        fill="url(#paper)" stroke="#d9cdb0" stroke-width="3"/>
+
+  <!-- manuscript baseline rule -->
+  <rect x="70" y="178" width="116" height="6" rx="3" fill="#7a3b2e" opacity="0.85"/>
+
+  <!-- serif monogram -->
+  <text x="128" y="164" text-anchor="middle"
+        font-family="'EB Garamond','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif"
+        font-size="176" font-weight="700" fill="#33302b">M</text>
+</svg>

@@ -112,7 +112,12 @@ styles.css     Nineteenth-century book typography
 renderer.js    Editor: block model, edit/preview toggle, hotkeys
 vendor/        marked.min.js, dompurify.min.js (no CDN, offline)
 fonts/         EB Garamond (woff2)
+assets/        icon.svg (in-app favicon) + icon.ico (window/taskbar/shortcut)
 ```
+
+The app icon — a warm paper tile with an oxblood-underlined serif **M** — is
+kept in the app palette. `assets/icon.svg` is the design source and in-app
+favicon; `assets/icon.ico` is generated from it with `npm run icon`.
 
 ## License
 
