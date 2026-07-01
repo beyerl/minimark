@@ -86,11 +86,15 @@ function currentFontSize() {
   return Number.isFinite(v) ? v : FONT_DEFAULT;
 }
 function bumpFontSize(delta) {
+  const a = scrollAnchor();
   const size = applyFontSize(currentFontSize() + delta);
+  restoreAnchor(a);
   toast(`Text size ${Math.round(size)} px`);
 }
 function resetFontSize() {
+  const a = scrollAnchor();
   applyFontSize(FONT_DEFAULT);
+  restoreAnchor(a);
   toast(`Text size ${FONT_DEFAULT} px`);
 }
 
@@ -158,6 +162,24 @@ function topVisibleBlock() {
     if (b.getBoundingClientRect().bottom > top + 4) return b;
   }
   return blocks[blocks.length - 1] || null;
+}
+
+// Anchor the reading position to a specific block so that operations which
+// reflow the whole page (notably zooming) keep the same text under the eye
+// instead of jumping to a proportional pixel offset. Capture before, restore
+// after: the block that was at the top of the viewport returns to the top.
+function scrollAnchor() {
+  const b = topVisibleBlock();
+  if (!b) return null;
+  const viewTop = scroll.getBoundingClientRect().top;
+  return { off: +b.dataset.off, delta: b.getBoundingClientRect().top - viewTop };
+}
+function restoreAnchor(a) {
+  if (!a) return;
+  const b = blockByOff(a.off);
+  if (!b) return;
+  const viewTop = scroll.getBoundingClientRect().top;
+  scroll.scrollTop += (b.getBoundingClientRect().top - viewTop) - a.delta;
 }
 
 // --- Per-block editing ------------------------------------------------------
