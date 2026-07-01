@@ -7,4 +7,6 @@
 [x] Imporve ordering of short cuts in f1 view 
 [x] Add a CLI command which alows me to open a file (similar to code <path to file> for vs code)
 [x] Add a desktop shortcut i can press to open the app on windows
-[x] Add a better App and favicon
+[x] Remember Scrollposition if file is closed and reopened
+[ ] Remember Scrollposition pased on text shown when zomm is operated
+[ ] Implement VS Code like Ctrl-F Search in File feature

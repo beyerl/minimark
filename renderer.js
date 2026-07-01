@@ -395,13 +395,45 @@ doc.addEventListener('mousedown', (e) => {
   enterEditAtOffset(+block.dataset.off, 'start');
 });
 
+// --- Scroll position memory (per file) --------------------------------------
+// Each real file remembers where it was left; reopening it later returns to the
+// same place. Kept in localStorage keyed by absolute path. Untitled/welcome
+// buffers have no path and are never persisted.
+function scrollKey() {
+  return filePath ? 'mm.scroll:' + filePath : null;
+}
+let scrollSaveTimer = null;
+function saveScrollPos() {
+  const key = scrollKey();
+  if (!key) return;
+  try { localStorage.setItem(key, String(Math.round(scroll.scrollTop))); } catch {}
+}
+function restoreScrollPos() {
+  const key = scrollKey();
+  let top = 0;
+  if (key) {
+    const v = parseFloat(localStorage.getItem(key));
+    if (Number.isFinite(v)) top = v;
+  }
+  scroll.scrollTop = top;
+  // Fonts (font-display: swap) and images can shift layout after first paint,
+  // so re-apply the target once the next frame has settled.
+  requestAnimationFrame(() => { scroll.scrollTop = top; });
+}
+scroll.addEventListener('scroll', () => {
+  clearTimeout(scrollSaveTimer);
+  scrollSaveTimer = setTimeout(saveScrollPos, 200);
+});
+window.addEventListener('beforeunload', saveScrollPos);
+
 // --- File operations --------------------------------------------------------
 function loadContent(content, path) {
   leaveEdit();
+  saveScrollPos();          // persist the outgoing file's position first
   filePath = path || null;
   docName = path ? path.split(/[\\/]/).pop() : 'untitled.md';
   setSource(content, { dirty: false });
-  scroll.scrollTop = 0;
+  restoreScrollPos();
 }
 
 async function openFile() {
