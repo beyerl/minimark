@@ -15,6 +15,16 @@
       <article id="doc" class="page" spellcheck="false"></article>
     </main>
 
+    <!-- Ctrl-F find bar (VS Code style), hidden until summoned. -->
+    <div id="find" class="find-bar" hidden>
+      <input id="find-input" class="find-input" type="text" placeholder="Find"
+             spellcheck="false" aria-label="Find in document" />
+      <span id="find-count" class="find-count"></span>
+      <button id="find-prev" class="find-btn" title="Previous match (Shift+Enter)" tabindex="-1">↑</button>
+      <button id="find-next" class="find-btn" title="Next match (Enter)" tabindex="-1">↓</button>
+      <button id="find-close" class="find-btn" title="Close (Esc)" tabindex="-1">✕</button>
+    </div>
+
     <!-- Transient status toast (save confirmations, errors, etc.). -->
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
@@ -38,6 +48,10 @@
           <dt>Ctrl&nbsp;+&nbsp;O</dt><dd>Open a file</dd>
           <dt>Ctrl&nbsp;+&nbsp;S</dt><dd>Save</dd>
           <dt>Ctrl&nbsp;+&nbsp;Shift&nbsp;+&nbsp;S</dt><dd>Save as…</dd>
+
+          <dt class="grp">Search</dt>
+          <dt>Ctrl&nbsp;+&nbsp;F</dt><dd>Find in document</dd>
+          <dt>Enter / Shift&nbsp;+&nbsp;Enter</dt><dd>Next / previous match (F3 / Shift&nbsp;+&nbsp;F3)</dd>
 
           <dt class="grp">Appearance</dt>
           <dt>Ctrl&nbsp;+&nbsp;= / Ctrl&nbsp;+&nbsp;−</dt><dd>Increase / decrease text size (Ctrl&nbsp;+&nbsp;0 resets)</dd>

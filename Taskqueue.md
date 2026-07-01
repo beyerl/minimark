@@ -9,4 +9,4 @@
 [x] Add a desktop shortcut i can press to open the app on windows
 [x] Remember Scrollposition if file is closed and reopened
 [x] Remember Scrollposition pased on text shown when zomm is operated
-[ ] Implement VS Code like Ctrl-F Search in File feature
+[x] Implement VS Code like Ctrl-F Search in File feature

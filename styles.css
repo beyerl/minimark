@@ -268,6 +268,70 @@ body {
   word-break: break-word;
 }
 
+/* --- Ctrl-F find bar ----------------------------------------------------- */
+.find-bar {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  background: var(--paper);
+  border: 1px solid rgba(107, 99, 83, 0.5);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  padding: 0.35em 0.5em;
+  z-index: 90;
+}
+.find-bar[hidden] { display: none; }
+
+.find-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  width: 15em;
+  padding: 0.1em 0.2em;
+}
+.find-input::placeholder { color: var(--ink-soft); }
+
+.find-count {
+  font-family: 'Consolas', ui-monospace, monospace;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  min-width: 3.6em;
+  text-align: right;
+}
+.find-bar.no-results .find-count,
+.find-bar.no-results .find-input { color: var(--accent); }
+
+.find-btn {
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0.2em 0.35em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.find-btn:hover { background: rgba(122, 59, 46, 0.12); color: var(--ink); }
+
+/* Match highlighting inside the rendered page. */
+mark.mm-find {
+  background: rgba(214, 173, 61, 0.42);
+  color: inherit;
+  border-radius: 2px;
+}
+body.dark mark.mm-find { background: rgba(210, 154, 130, 0.32); }
+mark.mm-find.mm-find-current {
+  background: var(--accent);
+  color: var(--paper);
+}
+
 /* --- Toast -------------------------------------------------------------- */
 .toast {
   position: fixed;

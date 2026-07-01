@@ -71,6 +71,9 @@ Double-click it to launch the editor. Remove it with `npm run shortcut -- -Remov
 | **↑ / ↓** at a paragraph edge | Move the cursor between paragraphs |
 | **Ctrl + D** | Select the word; repeat to add the next occurrence, then type to rename them all (within the current paragraph) |
 | **Esc** | Leave edit mode |
+| *Search* | |
+| **Ctrl + F** | Find in document |
+| **Enter / Shift + Enter** | Next / previous match (**F3 / Shift + F3**) |
 | *File* | |
 | **Ctrl + O** | Open a file (remembers the last folder) |
 | **Ctrl + S** | Save |

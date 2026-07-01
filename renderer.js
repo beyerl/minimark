@@ -14,6 +14,9 @@ const doc = document.getElementById('doc');
 const scroll = document.getElementById('scroll');
 const toastEl = document.getElementById('toast');
 const helpEl = document.getElementById('help');
+const findBar = document.getElementById('find');
+const findInput = document.getElementById('find-input');
+const findCountEl = document.getElementById('find-count');
 
 marked.setOptions({ gfm: true, breaks: false });
 
@@ -26,6 +29,7 @@ let dirty = false;
 let editing = null;     // { el, off, clen } while a block is in raw edit mode
 let ms = null;          // multiselect session: { anchor, ranges, typing, base, repl }
 let helpOpen = false;
+let find = { open: false, query: '', hits: [], index: -1 };  // Ctrl-F find session
 
 // --- Small helpers ----------------------------------------------------------
 function escapeHtml(s) {
@@ -146,6 +150,8 @@ function renderAll() {
     doc.appendChild(el);
   }
   scroll.scrollTop = prevScroll;
+  // Re-render wipes the DOM (and any highlights); repaint matches if searching.
+  if (find.open && find.query) runFind(true);
 }
 
 // --- Block geometry helpers -------------------------------------------------
@@ -491,6 +497,129 @@ helpEl.addEventListener('mousedown', (e) => {
   if (e.target === helpEl) toggleHelp();   // click backdrop to close
 });
 
+// --- Ctrl-F find in document ------------------------------------------------
+// Searches the rendered text (case-insensitive), wrapping each occurrence in a
+// <mark> for highlighting. Enter / Shift+Enter (or F3 / Shift+F3) step through
+// matches, centering the current one. Highlights live only in the DOM, so any
+// re-render simply repaints them via renderAll().
+function clearFindHighlights() {
+  // Query the live DOM (not find.hits, whose nodes may be detached after a
+  // re-render) and unwrap each mark back into plain text.
+  for (const m of doc.querySelectorAll('mark.mm-find')) {
+    const parent = m.parentNode;
+    if (!parent) continue;
+    parent.replaceChild(document.createTextNode(m.textContent), m);
+    parent.normalize();
+  }
+  find.hits = [];
+  find.index = -1;
+}
+
+function updateFindCount() {
+  const total = find.hits.length;
+  const cur = find.index >= 0 ? find.index + 1 : (total ? 1 : 0);
+  findCountEl.textContent = total
+    ? `${cur} / ${total}`
+    : (find.query ? 'No results' : '');
+  findBar.classList.toggle('no-results', !!find.query && total === 0);
+}
+
+function setFindCurrent(i, doScroll) {
+  for (const m of find.hits) m.classList.remove('mm-find-current');
+  if (i < 0 || i >= find.hits.length) { find.index = -1; updateFindCount(); return; }
+  find.index = i;
+  const m = find.hits[i];
+  m.classList.add('mm-find-current');
+  if (doScroll !== false) m.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  updateFindCount();
+}
+
+function runFind(preserveIndex) {
+  const prevIndex = find.index;
+  clearFindHighlights();
+  const needle = find.query.toLowerCase();
+  if (!needle) { updateFindCount(); return; }
+
+  // Collect matching text nodes first — mutating the tree during a walk is
+  // unsafe. Skip whitespace-only nodes and anything inside the raw editor.
+  const walker = document.createTreeWalker(doc, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      if (node.parentNode && node.parentNode.closest('textarea')) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const textNodes = [];
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) textNodes.push(n);
+
+  for (const node of textNodes) {
+    const text = node.nodeValue;
+    const lower = text.toLowerCase();
+    let idx = lower.indexOf(needle);
+    if (idx === -1) continue;
+    const frag = document.createDocumentFragment();
+    let last = 0;
+    while (idx !== -1) {
+      if (idx > last) frag.appendChild(document.createTextNode(text.slice(last, idx)));
+      const mark = document.createElement('mark');
+      mark.className = 'mm-find';
+      mark.textContent = text.slice(idx, idx + needle.length);
+      frag.appendChild(mark);
+      find.hits.push(mark);
+      last = idx + needle.length;
+      idx = lower.indexOf(needle, last);
+    }
+    if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  }
+
+  if (find.hits.length) {
+    const i = preserveIndex && prevIndex >= 0
+      ? Math.min(prevIndex, find.hits.length - 1)
+      : 0;
+    setFindCurrent(i, true);
+  } else {
+    updateFindCount();
+  }
+}
+
+function findNext(dir) {
+  if (!find.hits.length) return;
+  let i = find.index + dir;
+  if (i >= find.hits.length) i = 0;
+  if (i < 0) i = find.hits.length - 1;
+  setFindCurrent(i, true);
+}
+
+function openFind() {
+  if (editing) commitEditing();
+  find.open = true;
+  findBar.hidden = false;
+  findInput.focus();
+  findInput.select();
+  if (find.query) runFind(false);
+}
+
+function closeFind() {
+  find.open = false;
+  findBar.hidden = true;
+  clearFindHighlights();
+  updateFindCount();
+  scroll.focus?.();
+}
+
+findInput.addEventListener('input', () => {
+  find.query = findInput.value;
+  runFind(false);
+});
+findInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); findNext(e.shiftKey ? -1 : 1); }
+  else if (e.key === 'Escape') { e.preventDefault(); closeFind(); }
+});
+document.getElementById('find-next').addEventListener('click', () => { findNext(1); findInput.focus(); });
+document.getElementById('find-prev').addEventListener('click', () => { findNext(-1); findInput.focus(); });
+document.getElementById('find-close').addEventListener('click', closeFind);
+
 // --- musicforprogramming.net playback ---------------------------------------
 const audio = new Audio();
 audio.preload = 'none';
@@ -541,6 +670,8 @@ window.addEventListener('keydown', (e) => {
     e.shiftKey ? saveAs() : save();
     return;
   }
+  if (ctrl && (e.key === 'f' || e.key === 'F')) { e.preventDefault(); openFind(); return; }
+  if (e.key === 'F3') { e.preventDefault(); if (find.open) findNext(e.shiftKey ? -1 : 1); return; }
   if (ctrl && (e.key === 'o' || e.key === 'O')) { e.preventDefault(); openFile(); return; }
   if (ctrl && (e.key === 'e' || e.key === 'E')) { e.preventDefault(); enterEditTop(); return; }
   if (ctrl && (e.key === 'm' || e.key === 'M')) {
@@ -556,6 +687,10 @@ window.addEventListener('keydown', (e) => {
   if (ctrl && (e.key === '=' || e.key === '+')) { e.preventDefault(); bumpFontSize(1); return; }
   if (ctrl && (e.key === '-' || e.key === '_')) { e.preventDefault(); bumpFontSize(-1); return; }
   if (ctrl && e.key === '0') { e.preventDefault(); resetFontSize(); return; }
+
+  // While typing in the find box, let it own the remaining keys (arrows, page
+  // keys); its own handler covers Enter/Esc.
+  if (document.activeElement === findInput) return;
 
   if (e.key === 'PageUp' || e.key === 'PageDown') {
     e.preventDefault();
